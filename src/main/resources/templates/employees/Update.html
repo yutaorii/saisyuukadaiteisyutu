@@ -30,17 +30,22 @@
                                             <th>氏名</th>
                                             <td class="align-middle">
                                                 <input type="text" class="form-control" th:field="*{name}" maxlength="100" />
-                                                <!-- 氏名のバリデーションエラーメッセージ -->
+
+                                                <!-- 氏名の必須エラーメッセージ -->
                                                 <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-danger"></span>
+
+                                                <!-- 氏名の桁数エラーメッセージ -->
+                                                <span th:if="${#fields.hasErrors('name')}" class="text-danger" th:text="#{error.name.range}"></span>
                                             </td>
                                         </tr>
+
                                         <tr>
                                             <th>パスワード</th>
                                             <td class="align-middle">
                                                 <input type="password" id="password" name="password" class="form-control white-background" th:field="*{password}" maxlength="20" />
 
-                                                <!-- パスワードのバリデーションエラーメッセージ -->
-                                                <span th:if="${#fields.hasErrors('password')}" class="text-danger" th:errors="*{password}"></span>
+                                                <!-- パスワードの必須エラーメッセージ -->
+                                                <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger"></span>
 
                                                 <!-- パスワードの桁数エラーメッセージ -->
                                                 <span th:if="${#fields.hasErrors('password')}" class="text-danger" th:text="#{error.password.range}"></span>
