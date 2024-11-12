@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="h-100" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="common/header :: head_fragment(title=日報 一覧)"></head
+<head th:replace="common/header :: head_fragment(title=日報一覧)"></head>
 
 <body class="h-100 overflow-hidden">
     <div class="row h-100">
@@ -30,8 +30,8 @@
                                     <tbody>
                                         <!-- 日報情報のループ表示 -->
                                         <tr th:each="report : ${reportList}">
-                                            <td class="align-middle" th:text="${report.employeeName}"></td>
-                                            <td class="align-middle" th:text="${#dates.format(report.date, 'yyyy-MM-dd')}"></td>
+                                            <td class="align-middle" th:text="${report.employee.name}"></td>
+                                            <td class="align-middle" th:text="${report.reportDate}"></td>
                                             <td class="align-middle" th:text="${report.title}"></td>
                                             <td class="align-middle">
                                                 <a th:href="@{/reports/{id}/details(id=${report.id})}" class="btn btn-primary">詳細</a>

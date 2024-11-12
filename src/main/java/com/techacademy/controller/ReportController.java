@@ -35,8 +35,8 @@ public class ReportController {
         return "reports/list";
     }
 
-    // 日報詳細画面
-    @GetMapping(value = "/{id}/")
+ // 日報詳細画面
+    @GetMapping(value = "/{id}/details")  // 変更："/details"を追加
     public String detail(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
         // ログインしていない場合はログイン画面にリダイレクト
         if (userDetail == null) {
