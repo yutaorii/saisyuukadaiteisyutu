@@ -35,10 +35,9 @@ public class ReportController {
         return "reports/list";
     }
 
- // 日報詳細画面
-    @GetMapping(value = "/{id}/details")  // 変更："/details"を追加
+    // 日報詳細画面
+    @GetMapping(value = "/{id}/details")
     public String detail(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
-        // ログインしていない場合はログイン画面にリダイレクト
         if (userDetail == null) {
             return "redirect:/login";
         }
@@ -52,23 +51,20 @@ public class ReportController {
         return "reports/detail";
     }
 
- // 日報新規登録画面表示
+    // 日報新規登録画面表示
     @GetMapping("/add")
     public String addForm(Model model) {
-        // 新規日報の空のインスタンスを作成してビューに渡す
         model.addAttribute("report", new Report());
-        return "reports/new";  // ここでは、"reports/new"というThymeleafテンプレートを表示
+        return "reports/new";
     }
 
     // 日報新規登録処理
     @PostMapping(value = "/add")
     public String add(@AuthenticationPrincipal UserDetail userDetail, Report report, BindingResult bindingResult, Model model) {
-        // ログインしていない場合はログイン画面にリダイレクト
         if (userDetail == null) {
             return "redirect:/login";
         }
 
-        // バリデーションチェック
         if (bindingResult.hasErrors()) {
             return "reports/detail";  // 入力エラーがあれば詳細画面に戻る
         }
@@ -89,30 +85,46 @@ public class ReportController {
         return "redirect:/reports";  // 登録成功後は日報一覧に遷移
     }
 
-    // 日報更新処理
-    @PostMapping(value = "/{id}/update")
+    // **日報更新画面表示**
+    @GetMapping("/{id}/update")  // 修正: "/edit" -> "/update"
+    public String updateForm(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
+        if (userDetail == null) {
+            return "redirect:/login";
+        }
+
+        // 更新対象のレポート情報を取得
+        Report report = reportService.findById(id);
+        if (report == null) {
+            return "redirect:/reports";  // レポートが見つからない場合は一覧画面にリダイレクト
+        }
+
+        model.addAttribute("report", report);
+        return "reports/update";  // 修正: "reports/edit" -> "reports/update"
+    }
+
+    // **日報更新処理**
+    @PostMapping("/{id}/update")  // 修正: "/edit" -> "/update"
     public String update(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Report report, BindingResult bindingResult, Model model) {
-        // ログインしていない場合はログイン画面にリダイレクト
         if (userDetail == null) {
             return "redirect:/login";
         }
 
         // バリデーションチェック
         if (bindingResult.hasErrors()) {
-            return "reports/detail";
+            return "reports/update";  // 修正: "reports/edit" -> "reports/update"
         }
 
         // 日付重複チェック
         if (reportService.isDateDuplicate(userDetail.getEmployee().getCode(), report.getReportDate(), id)) {
             model.addAttribute("reportDateDuplicate", true);  // 日付重複エラー
-            return "reports/detail";
+            return "reports/update";  // 再度編集画面に戻る
         }
 
         // 更新処理
         ErrorKinds result = reportService.updateReport(id, report);
         if (result != ErrorKinds.SUCCESS) {
             model.addAttribute("errorMessage", ErrorMessage.getErrorValue(result));
-            return "reports/detail";  // 更新失敗時も詳細画面に戻る
+            return "reports/update";  // 修正: "reports/edit" -> "reports/update"
         }
 
         return "redirect:/reports";  // 更新成功後は日報一覧に遷移
@@ -121,7 +133,6 @@ public class ReportController {
     // 日報削除処理
     @PostMapping(value = "/{id}/delete")
     public String delete(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
-        // ログインしていない場合はログイン画面にリダイレクト
         if (userDetail == null) {
             return "redirect:/login";
         }
@@ -129,7 +140,6 @@ public class ReportController {
         // ErrorKinds型に変更
         ErrorKinds result = reportService.deleteReport(id);
         if (result != ErrorKinds.SUCCESS) {
-            // 削除できなかった場合のエラーメッセージを設定
             model.addAttribute("errorMessage", ErrorMessage.getErrorValue(result));
             return "redirect:/reports";  // 削除失敗時も日報一覧に遷移
         }

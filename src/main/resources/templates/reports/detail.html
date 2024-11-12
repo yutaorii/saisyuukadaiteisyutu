@@ -60,19 +60,19 @@
                                 <div class="mt-5 row g-1">
                                     <!-- 7. 更新ボタン -->
                                     <div class="col-auto">
-                                        <a th:href="@{/reports/{id}/edit(id=${report.id})}" class="btn btn-primary">更新</a>
+                                        <a th:href="@{/reports/{id}/update(id=${report.id})}" class="btn btn-primary">更新</a>
                                     </div>
 
                                     <!-- 8. 削除ボタン -->
                                     <div class="col-auto">
                                         <form name="form" th:action="@{/reports/{id}/delete(id=${report.id})}" th:method="post">
-                                            <input type="submit" value="削除" class="btn btn-danger">
+                                            <input type="submit" value="削除" class="btn btn-primary">
                                         </form>
                                     </div>
 
                                     <!-- 9. 戻るボタン -->
                                     <div class="col-auto">
-                                        <a th:href="@{/reports}" class="btn btn-secondary">戻る</a>
+                                        <a th:href="@{/reports}" class="btn btn-primary">戻る</a>
                                     </div>
                                 </div>
                             </div>
