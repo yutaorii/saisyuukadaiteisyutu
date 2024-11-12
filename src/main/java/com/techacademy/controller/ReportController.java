@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
+import com.techacademy.entity.Employee;
 import com.techacademy.entity.Report;
 import com.techacademy.service.ReportService;
 import com.techacademy.service.UserDetail;
@@ -54,7 +55,13 @@ public class ReportController {
     // 日報新規登録画面表示
     @GetMapping("/add")
     public String addForm(Model model) {
-        model.addAttribute("report", new Report());
+        Report report = new Report();
+
+        // 変更箇所: 新規 Report オブジェクトに Employee を初期化する
+        Employee employee = new Employee();
+        report.setEmployee(employee);
+
+        model.addAttribute("report", report);
         return "reports/new";
     }
 
@@ -86,13 +93,12 @@ public class ReportController {
     }
 
     // **日報更新画面表示**
-    @GetMapping("/{id}/update")  // 修正: "/edit" -> "/update"
+    @GetMapping("/{id}/update")
     public String updateForm(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
         if (userDetail == null) {
             return "redirect:/login";
         }
 
-        // 更新対象のレポート情報を取得
         Report report = reportService.findById(id);
         if (report == null) {
             return "redirect:/reports";  // レポートが見つからない場合は一覧画面にリダイレクト
@@ -103,7 +109,7 @@ public class ReportController {
     }
 
     // **日報更新処理**
-    @PostMapping("/{id}/update")  // 修正: "/edit" -> "/update"
+    @PostMapping("/{id}/update")
     public String update(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Report report, BindingResult bindingResult, Model model) {
         if (userDetail == null) {
             return "redirect:/login";

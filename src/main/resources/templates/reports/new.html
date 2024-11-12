@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="h-100" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="common/header :: head_fragment(title=日報 新規登録)"></head>
+<head th:replace="common/header :: head_fragment(title=日報新規登録)"></head>
 
 <body class="h-100 overflow-hidden">
     <div class="row h-100">
@@ -34,7 +34,9 @@
                                         <tr>
                                             <th>氏名</th>
                                             <td class="align-middle">
-                                                <input type="text" class="form-control" th:field="*{employee.name}" th:value="${report.employee.name}" readonly />
+                                                <!-- 変更箇所: employee が null の場合にデフォルト値を表示 -->
+                                                <input type="text" class="form-control" th:field="*{employee.name}"
+                                                       th:value="${report.employee != null ? report.employee.name : '未設定'}" readonly />
                                             </td>
                                         </tr>
 
