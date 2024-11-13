@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Integer> {
@@ -22,4 +23,6 @@ public interface ReportRepository extends JpaRepository<Report, Integer> {
 
     // 日報IDで日報を物理削除する
     void deleteById(Integer id);  // これで物理削除が可能
+
+    List<Report> findByEmployee_CodeAndReportDate(String employeeCode, LocalDate reportDate);
 }
