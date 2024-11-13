@@ -54,7 +54,6 @@ public class EmployeeController {
         return "employees/Update";  // 更新画面へ遷移
     }
 
-
     // 従業員更新処理
     @PostMapping(value = "/{code}/update")
     public String update(@PathVariable String code, @Validated Employee employee, BindingResult bindingResult, Model model) {
@@ -64,9 +63,10 @@ public class EmployeeController {
             return "employees/Update";  // 従業員更新画面に戻る
         }
 
-        // パスワードが空の場合はDBの値を保持（パスワード変更なし）
+        // パスワードが空の場合、パスワードを変更しない
         if ("".equals(employee.getPassword())) {
-            employee.setPassword(employeeService.findByCode(code).getPassword());
+            Employee existingEmployee = employeeService.findByCode(code);
+            employee.setPassword(existingEmployee.getPassword());  // DBのパスワードを保持
         }
 
         // 更新処理
@@ -94,7 +94,6 @@ public class EmployeeController {
         return "redirect:/employees";  // 更新完了後は従業員一覧画面に遷移
     }
 
-
     // 従業員新規登録画面
     @GetMapping(value = "/add")
     public String create(@ModelAttribute Employee employee) {
@@ -106,7 +105,7 @@ public class EmployeeController {
     public String add(@Validated Employee employee, BindingResult res, Model model) {
         // パスワード空白チェック
         if ("".equals(employee.getPassword())) {
-            // **ここから修正**: パスワードが空白の場合のエラーメッセージ処理
+            // パスワードが空白の場合のエラーメッセージ処理
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));  // エラーメッセージを渡す
             return create(employee);  // 新規登録画面に戻る
@@ -121,7 +120,7 @@ public class EmployeeController {
         try {
             ErrorKinds result = employeeService.save(employee);
 
-            // **ここから修正**: 保存結果がエラーの場合の処理
+            // 保存結果がエラーの場合の処理
             if (ErrorMessage.contains(result)) {
                 String errorName = ErrorMessage.getErrorName(result); // エラーメッセージの名前を取得
                 String errorValue = ErrorMessage.getErrorValue(result); // エラーメッセージの値を取得
@@ -130,7 +129,7 @@ public class EmployeeController {
             }
 
         } catch (DataIntegrityViolationException e) {
-            // **ここから修正**: 例外処理でエラーメッセージを表示
+            // 例外処理でエラーメッセージを表示
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             return create(employee);  // 新規登録画面に戻る
@@ -144,7 +143,7 @@ public class EmployeeController {
     public String delete(@PathVariable String code, @AuthenticationPrincipal UserDetail userDetail, Model model) {
         ErrorKinds result = employeeService.delete(code, userDetail);
 
-        // **ここから修正**: エラーメッセージの処理
+        // エラーメッセージの処理
         if (ErrorMessage.contains(result)) {  // エラーメッセージが存在する場合のみ処理
             String errorName = ErrorMessage.getErrorName(result); // エラーメッセージの名前を取得
             String errorValue = ErrorMessage.getErrorValue(result); // エラーメッセージの値を取得
