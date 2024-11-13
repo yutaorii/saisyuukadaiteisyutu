@@ -92,7 +92,6 @@ public class ReportController {
         return "redirect:/reports";  // 登録成功後は日報一覧に遷移
     }
 
-    // **日報更新画面表示**
     @GetMapping("/{id}/update")
     public String updateForm(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
         if (userDetail == null) {
@@ -104,7 +103,7 @@ public class ReportController {
             return "redirect:/reports";  // レポートが見つからない場合は一覧画面にリダイレクト
         }
 
-        model.addAttribute("report", report);
+        model.addAttribute("report", report);  // reportオブジェクトをモデルに追加
         return "reports/update";  // 修正: "reports/edit" -> "reports/update"
     }
 

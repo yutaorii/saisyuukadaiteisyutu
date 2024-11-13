@@ -19,4 +19,7 @@ public interface ReportRepository extends JpaRepository<Report, Integer> {
 
     // 日報IDで日報を取得する（削除フラグが立っていないもの）
     Optional<Report> findByIdAndDeleteFlgFalse(Integer id);
+
+    // 日報IDで日報を物理削除する
+    void deleteById(Integer id);  // これで物理削除が可能
 }

@@ -4,6 +4,9 @@ import com.techacademy.constants.ErrorKinds;
 import com.techacademy.entity.Employee;
 import com.techacademy.entity.Report;
 import com.techacademy.repository.ReportRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.techacademy.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,14 +38,16 @@ public class ReportService {
     }
 
  // 日報削除処理
+    @Transactional
     public ErrorKinds deleteReport(Integer id) {
         Report report = findById(id);  // IDで日報を検索
         if (report != null) {
-            report.setDeleteFlg(true);  // 削除フラグを立てる
-            reportRepository.save(report);  // 更新
+            // 日報を物理削除
+            reportRepository.delete(report);  // 実際にレコードを削除
             return ErrorKinds.SUCCESS;  // 成功した場合は SUCCESS を返す
         }
-        return ErrorKinds.DUPLICATE_EXCEPTION_ERROR;  // 日報が見つからない場合にエラーを返す
+        // 日報が見つからなかった場合に REPORT_NOT_FOUND を返す
+        return ErrorKinds.BLANK_ERROR;  // 日報が見つからない場合にエラーを返す
     }
 
     // 日付重複チェック

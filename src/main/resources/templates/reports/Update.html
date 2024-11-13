@@ -26,17 +26,19 @@
                                         <tr>
                                             <th class="w-25">日付</th>
                                             <td class="align-middle">
-                                                <input type="date" class="form-control" th:field="*{reportDate}" required />
+                                                <!-- 日付フィールドにDBから取得した日付を初期値として設定 -->
+                                                <input type="date" class="form-control" th:value="${#temporals.format(report.reportDate, 'yyyy-MM-dd')}" required id="reportDate" name="reportDate" />
                                                 <span class="text-danger" th:errors="*{reportDate}"></span>
                                                 <span th:if="${reportDateDuplicate}" class="text-danger">既に登録されている日付です</span>
                                             </td>
                                         </tr>
 
-                                        <!-- 2. 氏名 -->
+                                        <!-- 2. 氏名 (編集可能) -->
                                         <tr>
                                             <th>氏名</th>
                                             <td class="align-middle">
-                                                <input type="text" class="form-control" th:field="*{employee.name}" readonly />
+                                                <!-- 氏名を編集可能にするためにreadonly属性を削除 -->
+                                                <input type="text" class="form-control" th:field="*{employee.name}" />
                                             </td>
                                         </tr>
 
