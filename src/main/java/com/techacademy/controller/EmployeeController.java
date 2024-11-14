@@ -54,7 +54,7 @@ public class EmployeeController {
         return "employees/Update";  // 更新画面へ遷移
     }
 
-    // 従業員更新処理
+ // 従業員更新処理
     @PostMapping(value = "/{code}/update")
     public String update(@PathVariable String code, @Validated Employee employee, BindingResult bindingResult, Model model) {
         // 入力チェック（エラーがあれば更新画面に戻す）
@@ -64,7 +64,8 @@ public class EmployeeController {
         }
 
         // パスワードが空の場合、パスワードを変更しない
-        if ("".equals(employee.getPassword())) {
+        if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
+            // DBから既存従業員を取得してパスワードを保持
             Employee existingEmployee = employeeService.findByCode(code);
             employee.setPassword(existingEmployee.getPassword());  // DBのパスワードを保持
         }
@@ -91,8 +92,13 @@ public class EmployeeController {
             return "employees/Update";  // エラーがあれば更新画面に戻る
         }
 
+        // 成功メッセージを追加（任意）
+        model.addAttribute("successMessage", "従業員情報が正常に更新されました。");
+
         return "redirect:/employees";  // 更新完了後は従業員一覧画面に遷移
     }
+
+
 
     // 従業員新規登録画面
     @GetMapping(value = "/add")

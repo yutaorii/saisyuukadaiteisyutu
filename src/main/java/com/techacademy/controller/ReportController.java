@@ -33,7 +33,7 @@ public class ReportController {
     public String list(Model model) {
         model.addAttribute("listSize", reportService.findAllReports().size());
         model.addAttribute("reportList", reportService.findAllReports());
-        return "reports/list";
+        return "reports/list";  // 日報一覧のビュー
     }
 
     // 日報詳細画面
@@ -49,7 +49,7 @@ public class ReportController {
         }
 
         model.addAttribute("report", report);
-        return "reports/detail";
+        return "reports/detail";  // 詳細画面表示
     }
 
     // 日報新規登録画面表示
@@ -57,12 +57,12 @@ public class ReportController {
     public String addForm(Model model) {
         Report report = new Report();
 
-        // 変更箇所: 新規 Report オブジェクトに Employee を初期化する
+        // 新規 Report オブジェクトに Employee を初期化する
         Employee employee = new Employee();
         report.setEmployee(employee);
 
         model.addAttribute("report", report);
-        return "reports/new";
+        return "reports/new";  // 新規登録フォームを表示
     }
 
     // 日報新規登録処理
@@ -72,26 +72,28 @@ public class ReportController {
             return "redirect:/login";
         }
 
+        // バリデーションエラーがあれば、登録画面に戻す
         if (bindingResult.hasErrors()) {
-            return "reports/detail";  // 入力エラーがあれば詳細画面に戻る
+            return "reports/new";  // 新規登録画面に戻る
         }
 
         // 日付重複チェック
         if (reportService.isDateDuplicate(userDetail.getEmployee().getCode(), report.getReportDate(), null)) {
             model.addAttribute("reportDateDuplicate", true);
-            return "reports/detail";  // 日付重複エラー
+            return "reports/new";  // 重複エラーがあれば新規登録画面に戻る
         }
 
         // 新規登録処理
         ErrorKinds result = reportService.createReport(report, userDetail.getEmployee().getCode());
         if (result != ErrorKinds.SUCCESS) {
             model.addAttribute("errorMessage", ErrorMessage.getErrorValue(result));
-            return "reports/detail";  // 登録失敗時も詳細画面に戻る
+            return "reports/new";  // 新規登録失敗時、新規登録画面に戻る
         }
 
         return "redirect:/reports";  // 登録成功後は日報一覧に遷移
     }
 
+    // 日報更新画面表示
     @GetMapping("/{id}/update")
     public String updateForm(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Model model) {
         if (userDetail == null) {
@@ -103,11 +105,11 @@ public class ReportController {
             return "redirect:/reports";  // レポートが見つからない場合は一覧画面にリダイレクト
         }
 
-        model.addAttribute("report", report);  // reportオブジェクトをモデルに追加
-        return "reports/update";  // 修正: "reports/edit" -> "reports/update"
+        model.addAttribute("report", report);
+        return "reports/update";  // 更新画面を表示
     }
 
-    // **日報更新処理**
+    // 日報更新処理
     @PostMapping("/{id}/update")
     public String update(@PathVariable Integer id, @AuthenticationPrincipal UserDetail userDetail, Report report, BindingResult bindingResult, Model model) {
         if (userDetail == null) {
@@ -116,23 +118,28 @@ public class ReportController {
 
         // バリデーションチェック
         if (bindingResult.hasErrors()) {
-            return "reports/update";  // 修正: "reports/edit" -> "reports/update"
+            return "reports/update";  // バリデーションエラーがあれば更新画面に戻る
         }
 
         // 日付重複チェック
         if (reportService.isDateDuplicate(userDetail.getEmployee().getCode(), report.getReportDate(), id)) {
-            model.addAttribute("reportDateDuplicate", true);  // 日付重複エラー
-            return "reports/update";  // 再度編集画面に戻る
+            model.addAttribute("reportDateDuplicate", true);  // 重複エラー
+            return "reports/update";  // 更新画面に戻る
         }
 
         // 更新処理
         ErrorKinds result = reportService.updateReport(id, report);
         if (result != ErrorKinds.SUCCESS) {
             model.addAttribute("errorMessage", ErrorMessage.getErrorValue(result));
-            return "reports/update";  // 修正: "reports/edit" -> "reports/update"
+            return "reports/update";  // 更新失敗時は更新画面に戻る
         }
 
-        return "redirect:/reports";  // 更新成功後は日報一覧に遷移
+        // 変更後、日報一覧を再取得して表示
+        model.addAttribute("listSize", reportService.findAllReports().size());  // 一覧のサイズ
+        model.addAttribute("reportList", reportService.findAllReports());  // 更新された一覧データを渡す
+
+        // 更新後、日報一覧画面に遷移
+        return "reports/list";  // 更新後、日報一覧画面を表示
     }
 
     // 日報削除処理
@@ -142,7 +149,7 @@ public class ReportController {
             return "redirect:/login";
         }
 
-        // ErrorKinds型に変更
+        // 削除処理
         ErrorKinds result = reportService.deleteReport(id);
         if (result != ErrorKinds.SUCCESS) {
             model.addAttribute("errorMessage", ErrorMessage.getErrorValue(result));

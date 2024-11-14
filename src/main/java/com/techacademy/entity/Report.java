@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -18,7 +20,7 @@ import lombok.Data;
 @Table(name = "reports")
 public class Report {
 
- // ID
+    // ID
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -51,4 +53,18 @@ public class Report {
     // 更新日時
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    // 新規レコード挿入前に createdAt と updatedAt を設定（自動）
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;  // 新規作成時に createdAt を現在時刻で設定
+        this.updatedAt = now;  // 新規作成時に updatedAt を現在時刻で設定
+    }
+
+    // 更新前に updatedAt を設定（自動）
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();  // 更新時に updatedAt を現在時刻で設定
+    }
 }
