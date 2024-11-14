@@ -59,15 +59,9 @@ public class EmployeeController {
     public String update(@PathVariable String code, @Validated Employee employee, BindingResult bindingResult, Model model) {
         // 入力チェック（エラーがあれば更新画面に戻す）
         if (bindingResult.hasErrors()) {
+            System.out.println("入力チェックエラー");
             model.addAttribute("employee", employee);  // エラー時に入力内容を保持
             return "employees/Update";  // 従業員更新画面に戻る
-        }
-
-        // パスワードが空の場合、パスワードを変更しない
-        if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
-            // DBから既存従業員を取得してパスワードを保持
-            Employee existingEmployee = employeeService.findByCode(code);
-            employee.setPassword(existingEmployee.getPassword());  // DBのパスワードを保持
         }
 
         // 更新処理
@@ -75,14 +69,17 @@ public class EmployeeController {
 
         // エラーメッセージの処理（更新時のエラーをチェック）
         if (result != ErrorKinds.SUCCESS) {  // 成功でない場合にエラーメッセージを処理
+            System.out.println("エラー");
             String errorName = ErrorMessage.getErrorName(result); // エラーメッセージの名前を取得
             String errorValue = ErrorMessage.getErrorValue(result); // エラーメッセージの値を取得
 
             // もしエラーメッセージが取得できなかった場合、デフォルトメッセージを使用
             if (errorName == null) {
+                System.out.println("エラー");
                 errorName = "Unknown Error";  // デフォルトエラーメッセージ
             }
             if (errorValue == null) {
+                System.out.println("エラー");
                 errorValue = "An unexpected error occurred.";  // デフォルトエラーメッセージ
             }
 
