@@ -72,19 +72,9 @@ public class EmployeeController {
             System.out.println("エラー");
             String errorName = ErrorMessage.getErrorName(result); // エラーメッセージの名前を取得
             String errorValue = ErrorMessage.getErrorValue(result); // エラーメッセージの値を取得
-
-            // もしエラーメッセージが取得できなかった場合、デフォルトメッセージを使用
-            if (errorName == null) {
-                System.out.println("エラー");
-                errorName = "Unknown Error";  // デフォルトエラーメッセージ
-            }
-            if (errorValue == null) {
-                System.out.println("エラー");
-                errorValue = "An unexpected error occurred.";  // デフォルトエラーメッセージ
-            }
+            model.addAttribute(errorName, errorValue);  // エラーメッセージを渡す
 
             // モデルにエラーメッセージを追加
-            model.addAttribute("errorMessage", errorValue);  // エラーメッセージをセット
             model.addAttribute("employee", employee);  // 更新した従業員情報を再表示
             return "employees/Update";  // エラーがあれば更新画面に戻る
         }
@@ -94,8 +84,6 @@ public class EmployeeController {
 
         return "redirect:/employees";  // 更新完了後は従業員一覧画面に遷移
     }
-
-
 
     // 従業員新規登録画面
     @GetMapping(value = "/add")

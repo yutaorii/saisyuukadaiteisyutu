@@ -20,6 +20,7 @@
                         <div class="card-body mb-5">
                             <div class="wizard wizard-success mb-4">
                                 <!-- フォーム送信先URLを修正 -->
+                                <!-- 従業員の更新フォームから日報更新フォームへ変更 -->
                                 <form th:action="@{/reports/{id}/update(id=${report.id})}" th:object="${report}" th:method="post">
                                     <table class="table table-striped">
                                         <!-- 1. 日付 -->

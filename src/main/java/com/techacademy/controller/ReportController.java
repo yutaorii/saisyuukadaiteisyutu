@@ -153,11 +153,9 @@ public class ReportController {
         // 成功メッセージを追加（任意）
         model.addAttribute("successMessage", "従業員情報が正常に更新されました。");
 
-        // 更新後、従業員一覧に遷移
-        return "redirect:/employees";  // 更新完了後は従業員一覧画面に遷移
+        // 更新後、日報一覧ページ（list.html）に遷移
+        return "redirect:/reports";  // 修正箇所: 従業員更新後は日報一覧ページに遷移
     }
-
-
 
     // 日報削除処理
     @PostMapping(value = "/{id}/delete")
