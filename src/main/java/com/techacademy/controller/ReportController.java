@@ -58,12 +58,10 @@ public class ReportController {
 
     // 日報新規登録画面表示
     @GetMapping("/add")
-    public String addForm(Model model) {
+    public String addForm(Model model, @AuthenticationPrincipal UserDetail userDetail) {
         Report report = new Report();
 
-        // 新規 Report オブジェクトに Employee を初期化する
-        Employee employee = new Employee();
-        report.setEmployee(employee);
+        report.setEmployee(userDetail.getEmployee());
 
         model.addAttribute("report", report);
         return "reports/new";  // 新規登録フォームを表示
@@ -71,10 +69,7 @@ public class ReportController {
 
     // 日報新規登録処理
     @PostMapping(value = "/add")
-    public String add(@AuthenticationPrincipal UserDetail userDetail, Report report, BindingResult bindingResult, Model model) {
-        if (userDetail == null) {
-            return "redirect:/login";
-        }
+    public String add(@AuthenticationPrincipal UserDetail userDetail, @Validated Report report, BindingResult bindingResult, Model model) {
 
         // バリデーションエラーがあれば、登録画面に戻す
         if (bindingResult.hasErrors()) {
@@ -88,9 +83,12 @@ public class ReportController {
         }
 
         // 新規登録処理
+        report.setEmployee(userDetail.getEmployee());
         ErrorKinds result = reportService.createReport(report, userDetail.getEmployee().getCode());
         if (result != ErrorKinds.SUCCESS) {
-            model.addAttribute("errorMessage", ErrorMessage.getErrorValue(result));
+            String errorName = ErrorMessage.getErrorName(result); // エラーメッセージの名前を取得
+            String errorValue = ErrorMessage.getErrorValue(result); // エラーメッセージの値を取得
+            model.addAttribute(errorName, errorValue);  // エラーメッセージを渡す
             return "reports/new";  // 新規登録失敗時、新規登録画面に戻る
         }
 
@@ -114,40 +112,28 @@ public class ReportController {
     }
 
  // 従業員更新処理
-    @PostMapping(value = "/{code}/update")
-    public String update(@PathVariable String code, @Validated Employee employee, BindingResult bindingResult, Model model) {
+    @PostMapping(value = "/{id}/update")
+    public String update(@PathVariable Integer id, @Validated Report reports, BindingResult bindingResult, Model model, @AuthenticationPrincipal UserDetail userDetail) {
+        System.out.println("日報更新処理");
         // 入力チェック（エラーがあれば更新画面に戻す）
         if (bindingResult.hasErrors()) {
-            model.addAttribute("employee", employee);  // エラー時に入力内容を保持
-            return "employees/Update";  // 従業員更新画面に戻る
-        }
-
-        // パスワードが空の場合、パスワードを変更しない
-        if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
-            // DBから既存従業員を取得してパスワードを保持
-            Employee existingEmployee = employeeService.findByCode(code);
-            if (existingEmployee != null) {
-                employee.setPassword(existingEmployee.getPassword());  // DBのパスワードを保持
-            }
+            System.out.println("入力エラー");
+            model.addAttribute("report", reports);  // エラー時に入力内容を保持
+            return "reports/Update";  // 従業員更新画面に戻る
         }
 
         // パスワードが空でも、名前や役職など他の情報が更新される
         // 更新処理
-        ErrorKinds result = employeeService.update(employee);
+        reports.setEmployee(userDetail.getEmployee());
+        ErrorKinds result = reportService.update(id,reports);
 
         // エラーメッセージの処理（更新時のエラーをチェック）
         if (result != ErrorKinds.SUCCESS) {  // 成功でない場合にエラーメッセージを処理
+            String errorName = ErrorMessage.getErrorName(result); // エラーメッセージの名前を取得
             String errorValue = ErrorMessage.getErrorValue(result); // エラーメッセージの値を取得
+            model.addAttribute(errorName, errorValue);  // エラーメッセージを渡す
 
-            // エラーメッセージが取得できなかった場合、デフォルトメッセージを使用
-            if (errorValue == null) {
-                errorValue = "An unexpected error occurred.";  // デフォルトエラーメッセージ
-            }
-
-            // モデルにエラーメッセージを追加
-            model.addAttribute("errorMessage", errorValue);  // エラーメッセージをセット
-            model.addAttribute("employee", employee);  // 更新した従業員情報を再表示
-            return "employees/Update";  // エラーがあれば更新画面に戻る
+            return "reports/Update";  // エラーがあれば更新画面に戻る
         }
 
         // 成功メッセージを追加（任意）

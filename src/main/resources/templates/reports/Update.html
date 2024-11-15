@@ -28,9 +28,9 @@
                                             <th class="w-25">日付</th>
                                             <td class="align-middle">
                                                 <!-- 日付フィールドにDBから取得した日付を初期値として設定 -->
-                                                <input type="date" class="form-control" th:value="${#temporals.format(report.reportDate, 'yyyy-MM-dd')}" required id="reportDate" name="reportDate" />
+                                                <input type="date" class="form-control" th:field="*{reportDate}" th:errorclass="err"/>
                                                 <span class="text-danger" th:errors="*{reportDate}"></span>
-                                                <span th:if="${reportDateDuplicate}" class="text-danger">既に登録されている日付です</span>
+                                                <span th:if="${reportDateError} neq null" th:text="${reportDateError}" class="text-danger"></span>
                                             </td>
                                         </tr>
 
@@ -39,7 +39,7 @@
                                             <th>氏名</th>
                                             <td class="align-middle">
                                                 <!-- 氏名を編集可能にするためにreadonly属性を削除 -->
-                                                <input type="text" class="form-control" th:field="*{employee.name}" />
+                                                <input type="text" class="form-control" th:field="*{employee.name}"readonly />
                                             </td>
                                         </tr>
 
@@ -47,7 +47,7 @@
                                         <tr>
                                             <th>タイトル</th>
                                             <td class="align-middle">
-                                                <input type="text" class="form-control" th:field="*{title}" maxlength="100" required />
+                                                <input type="text" class="form-control" th:field="*{title}" th:errorclass="err" />
                                                 <span class="text-danger" th:errors="*{title}"></span>
                                             </td>
                                         </tr>
@@ -56,7 +56,7 @@
                                         <tr>
                                             <th>内容</th>
                                             <td class="align-middle">
-                                                <textarea class="form-control" th:field="*{content}" rows="5" maxlength="600" required></textarea>
+                                                <textarea class="form-control" th:field="*{content}" rows="5"  ></textarea>
                                                 <span class="text-danger" th:errors="*{content}"></span>
                                             </td>
                                         </tr>

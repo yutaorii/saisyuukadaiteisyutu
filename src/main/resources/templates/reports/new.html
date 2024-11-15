@@ -25,8 +25,9 @@
                                         <tr>
                                             <th class="w-25">日付</th>
                                             <td class="align-middle">
-                                                <input type="date" class="form-control" th:field="*{reportDate}" required />
-                                                <span th:if="${#fields.hasErrors('reportDate')}" class="text-danger" th:errors="*{reportDate}">値を入力してください</span>
+                                                <input type="date" class="form-control" th:field="*{reportDate}" th:errorclass="err" />
+                                                <span class="text-danger" th:errors="*{reportDate}"></span>
+                                                <span th:if="${reportDateError} neq null" th:text="${reportDateError}" class="text-danger"></span>
                                             </td>
                                         </tr>
 
@@ -36,7 +37,7 @@
                                             <td class="align-middle">
                                                 <!-- 変更箇所: readonly を削除して名前が編集可能に -->
                                                 <input type="text" class="form-control" th:field="*{employee.name}"
-                                                       th:value="${report.employee != null ? report.employee.name : '未設定'}" />
+                                                       th:value="${report.employee != null ? report.employee.name : '未設定'}"readonly />
                                             </td>
                                         </tr>
 
@@ -44,9 +45,8 @@
                                         <tr>
                                             <th>タイトル</th>
                                             <td class="align-middle">
-                                                <input type="text" class="form-control" th:field="*{title}" maxlength="100" required />
-                                                <span th:if="${#fields.hasErrors('title')}" class="text-danger" th:errors="*{title}">値を入力してください</span>
-                                                <span th:if="${#fields.hasErrors('title')}" class="text-danger">100文字以下で入力してください</span>
+                                                <input type="text" class="form-control" th:field="*{title}" th:errorclass="err"/>
+                                                <span class="text-danger" th:errors="*{title}"></span>
                                             </td>
                                         </tr>
 
@@ -54,9 +54,8 @@
                                         <tr>
                                             <th>内容</th>
                                             <td class="align-middle">
-                                                <textarea class="form-control" th:field="*{content}" rows="5" maxlength="600" required></textarea>
-                                                <span th:if="${#fields.hasErrors('content')}" class="text-danger" th:errors="*{content}">値を入力してください</span>
-                                                <span th:if="${#fields.hasErrors('content')}" class="text-danger">600文字以下で入力してください</span>
+                                                <textarea class="form-control" th:field="*{content}" rows="5"th:errorclass="err"></textarea>
+                                                <span class="text-danger" th:errors="*{content}"></span>
                                             </td>
                                         </tr>
 

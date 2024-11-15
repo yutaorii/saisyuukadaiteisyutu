@@ -11,6 +11,8 @@ import com.techacademy.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,35 +69,26 @@ public class ReportService {
             return ErrorKinds.BLANK_ERROR;  // タイトルまたは内容が空白の場合
         }
 
-        // タイトルと内容の桁数チェック
-        if (report.getTitle().length() > 100) {
-            return ErrorKinds.RANGECHECK_ERROR;  // タイトルが100文字を超えた場合
-        }
-        if (report.getContent().length() > 600) {
-            return ErrorKinds.RANGECHECK_ERROR;  // 内容が600文字を超えた場合
-        }
-
-        // 従業員コードで従業員情報を取得
-        Optional<Employee> employeeOpt = getEmployeeByCode(employeeCode);
-        if (employeeOpt.isEmpty()) {
-            return ErrorKinds.DUPLICATE_EXCEPTION_ERROR;  // 従業員が見つからない場合
-        }
-
-        Employee employee = employeeOpt.get();  // 従業員情報を取得
-        report.setEmployee(employee);  // 従業員を日報にセット
-
         // 日付重複チェック
-        if (isDateDuplicate(employeeCode, report.getReportDate(), null)) {
-            return ErrorKinds.DATECHECK_ERROR;  // 同じ日付のレポートが存在する場合
+        List<Report> r = reportRepository.findByEmployee_CodeAndReportDate(employeeCode, report.getReportDate());
+        if (r.size()>0) {
+            return ErrorKinds.DATECHECK_ERROR;  // 従業員が見つからない場合
         }
-
+        LocalDateTime now = LocalDateTime.now();
+        report.setCreatedAt(now);
+        report.setUpdatedAt(now);
         // 日報登録処理
         reportRepository.save(report);
         return ErrorKinds.SUCCESS;  // 登録成功
     }
 
     // 日報更新処理
-    public ErrorKinds updateReport(Integer id, Report report) {
+    public ErrorKinds update(Integer id, Report report) {
+        // 日付重複チェック
+        List<Report> r = reportRepository.findByEmployee_CodeAndReportDate(report.getEmployee().getCode(), report.getReportDate());
+        if (r.size()>0) {
+            return ErrorKinds.DATECHECK_ERROR;  // 従業員が見つからない場合
+        }
         Optional<Report> existingReportOpt = reportRepository.findById(id);
         if (existingReportOpt.isPresent()) {
             Report existingReport = existingReportOpt.get();
