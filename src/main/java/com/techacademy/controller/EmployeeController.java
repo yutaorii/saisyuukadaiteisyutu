@@ -1,5 +1,7 @@
 package com.techacademy.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
 import com.techacademy.entity.Employee;
+import com.techacademy.entity.Report;
 import com.techacademy.service.EmployeeService;
+import com.techacademy.service.ReportService; // ReportServiceをインポート
 import com.techacademy.service.UserDetail;
 
 @Controller
@@ -24,10 +28,12 @@ import com.techacademy.service.UserDetail;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final ReportService reportService;  // ReportServiceのインジェクション
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, ReportService reportService) {
         this.employeeService = employeeService;
+        this.reportService = reportService;  // ReportServiceのインジェクション
     }
 
     // 従業員一覧画面
@@ -54,7 +60,7 @@ public class EmployeeController {
         return "employees/Update";  // 更新画面へ遷移
     }
 
- // 従業員更新処理
+    // 従業員更新処理
     @PostMapping(value = "/{code}/update")
     public String update(@PathVariable String code, @Validated Employee employee, BindingResult bindingResult, Model model) {
         // 入力チェック（エラーがあれば更新画面に戻す）
@@ -129,9 +135,20 @@ public class EmployeeController {
         return "redirect:/employees";  // 新規登録完了後は従業員一覧画面に遷移
     }
 
-    // 従業員削除処理
+ // 従業員削除処理
     @PostMapping(value = "/{code}/delete")
     public String delete(@PathVariable String code, @AuthenticationPrincipal UserDetail userDetail, Model model) {
+        // 1. 従業員削除前に、その従業員に関連する日報を削除
+        // 従業員コードに関連するすべての日報を削除する処理
+        List<Report> reports = reportService.findAllReports();  // すべての日報を取得
+        for (Report report : reports) {
+            if (report.getEmployee().getCode().equals(code)) {
+                // 従業員コードが一致する日報を削除
+                reportService.deleteReport(report.getId());  // ReportServiceのdeleteReportメソッドを利用
+            }
+        }
+
+        // 2. 従業員削除処理を実行
         ErrorKinds result = employeeService.delete(code, userDetail);
 
         // エラーメッセージの処理
@@ -143,6 +160,7 @@ public class EmployeeController {
             return detail(code, model);  // 詳細画面に戻る
         }
 
+        // 従業員削除後、従業員一覧画面にリダイレクト
         return "redirect:/employees";  // 削除後は従業員一覧画面に遷移
     }
 }

@@ -82,13 +82,17 @@ public class ReportService {
         return ErrorKinds.SUCCESS;  // 登録成功
     }
 
-    // 日報更新処理
+ // 日報更新処理
     public ErrorKinds update(Integer id, Report report) {
         // 日付重複チェック
         List<Report> r = reportRepository.findByEmployee_CodeAndReportDate(report.getEmployee().getCode(), report.getReportDate());
-        if (r.size()>0) {
-            return ErrorKinds.DATECHECK_ERROR;  // 従業員が見つからない場合
+
+        for (Report existingReport : r) {
+            if (!existingReport.getId().equals(id)) {
+            }
         }
+
+        // 更新対象の日報が存在するか確認
         Optional<Report> existingReportOpt = reportRepository.findById(id);
         if (existingReportOpt.isPresent()) {
             Report existingReport = existingReportOpt.get();
@@ -97,9 +101,13 @@ public class ReportService {
             existingReport.setTitle(report.getTitle());
             existingReport.setContent(report.getContent());
             existingReport.setReportDate(report.getReportDate());
+
+            // 保存（更新）
             reportRepository.save(existingReport);
             return ErrorKinds.SUCCESS;  // 更新成功
         }
-        return ErrorKinds.DUPLICATE_EXCEPTION_ERROR;  // 更新対象の日報が存在しない場合
+
+        // 更新対象のレポートが存在しない場合
+        return ErrorKinds.DUPLICATE_EXCEPTION_ERROR;  // 更新対象の日報が見つからない
     }
 }
