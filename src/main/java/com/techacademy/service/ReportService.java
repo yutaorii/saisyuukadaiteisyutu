@@ -84,30 +84,28 @@ public class ReportService {
 
  // 日報更新処理
     public ErrorKinds update(Integer id, Report report) {
-        // 日付重複チェック
-        List<Report> r = reportRepository.findByEmployee_CodeAndReportDate(report.getEmployee().getCode(), report.getReportDate());
-
-        for (Report existingReport : r) {
-            if (!existingReport.getId().equals(id)) {
-            }
-        }
-
         // 更新対象の日報が存在するか確認
         Optional<Report> existingReportOpt = reportRepository.findById(id);
-        if (existingReportOpt.isPresent()) {
-            Report existingReport = existingReportOpt.get();
-
-            // 更新内容の反映
-            existingReport.setTitle(report.getTitle());
-            existingReport.setContent(report.getContent());
-            existingReport.setReportDate(report.getReportDate());
-
-            // 保存（更新）
-            reportRepository.save(existingReport);
-            return ErrorKinds.SUCCESS;  // 更新成功
+        if (!existingReportOpt.isPresent()) {
+            return ErrorKinds.DUPLICATE_EXCEPTION_ERROR;  // 更新対象の日報が見つからない
         }
 
-        // 更新対象のレポートが存在しない場合
-        return ErrorKinds.DUPLICATE_EXCEPTION_ERROR;  // 更新対象の日報が見つからない
+        Report existingReport = existingReportOpt.get();
+
+        // 修正箇所：日付変更を禁止
+        // もし報告の日付が変更されていた場合、エラーを返す
+        if (!existingReport.getReportDate().equals(report.getReportDate())) {
+            return ErrorKinds.DATECHECK_ERROR;  // 既存エラーコードで日付変更を禁止
+        }
+
+        // 更新内容の反映（タイトルや内容のみ変更可能）
+        existingReport.setTitle(report.getTitle());
+        existingReport.setContent(report.getContent());
+        // 日付は変更しないので、既存の日付を保持する
+        existingReport.setUpdatedAt(LocalDateTime.now());  // 更新日時を現在時刻に設定
+
+        // 保存（更新）
+        reportRepository.save(existingReport);
+        return ErrorKinds.SUCCESS;  // 更新成功
     }
 }
